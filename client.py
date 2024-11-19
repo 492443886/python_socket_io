@@ -1,4 +1,5 @@
 import socketio
+import json
 
 # Initialize the client
 sio = socketio.Client()
@@ -20,14 +21,16 @@ def on_message(data):
     print(f"{sender_id}: {data}")
 
 # Connect to the server
-sio.connect("http://localhost:12345")
+sio.connect("http://10.0.0.199:9001")
 
 # Send messages in a loop
 try:
     while True:
-        msg = input("You: ")
-        sio.emit('message', {'msg': msg})
-except KeyboardInterrupt:
-    print("Exiting chat...")
+        try:
+            msg = input("You: ")
+            j = json.loads(msg)
+            sio.emit('message',  j)
+        except KeyboardInterrupt:
+            print("Exiting chat...")
 finally:
     sio.disconnect()

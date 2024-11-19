@@ -1,6 +1,7 @@
 import socketio
 from flask import Flask
-
+import logging
+# logging.basicConfig(level=logging.DEBUG)
 # Create a Socket.IO server with CORS allowed for all origins (for testing)
 sio = socketio.Server(cors_allowed_origins='*')
 app = Flask(__name__)
@@ -31,4 +32,5 @@ def message(sid, data):
 
 # Run the server
 if __name__ == '__main__':
-    app.run(port=12345)
+    app.run("0.0.0.0" ,port=9001)
+
