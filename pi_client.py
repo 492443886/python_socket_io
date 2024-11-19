@@ -12,6 +12,14 @@ def set_light_on_off(pca, channel, state):
     else:
         print("Invalid state. Use 'on' or 'off'.")
 
+def set_channel_pwm(pca, channel, value):
+    pca._pca.channels[channel].duty_cycle = value
+
+
+def set_servo_angle(pca, servo_num, angle):
+    pca.servo[servo_num].angle = angle
+
+
 
 @sio.event
 def connect():
@@ -25,24 +33,61 @@ def disconnect():
 
 @sio.on('message')
 def on_message(data):
-    sender_id = data.get('sid', 'Server')  
-    print(f"\n{sender_id}: {str(data)}")
+    # sender_id = data.get('sid', 'Server')  
+    print(f"\n: {str(data)}")
     process(data)
 
 
 def process(data):
 
+    command = None
+    info = None    
     if "command" in data:
-        print("command:", data["command"])
+        command = data["command"]
+        print(type(command))
+        print("command:", command)
     else:
         print("'command' key does not exist in data")
+        return
 
     if "info" in data:
-        print("info:", data["info"])
-        set_light_on_off(kit, 2, "on")  # Light ON
+        info = data["info"]
+        print(type(info))
+        print("info:", info)
     else:
         print("'info' key does not exist in data")
-        set_light_on_off(kit, 2, "off")  # Light ON
+        return
+    
+    if command == "PCA_PWM":
+            #{"command": "PCA_PWM", "info":  {"value":  1000,  "channel": 2}}
+        if "channel" not in info:
+            print("miss channel in info")
+            return
+        if "value" not in info:
+            print("miss value in info")
+            return
+        
+        channel = info["channel"]
+        value = info["value"]
+        
+        set_channel_pwm(kit, channel, value)
+
+    elif command == "PCA_SERVO":
+
+        if "channel" not in info:
+            print("miss channel in info")
+            return
+        if "value" not in info:
+            print("miss value in info")
+            return
+
+        channel = info["channel"]
+        value = info["value"]
+        
+        set_servo_angle(kit, channel,value)
+    else:
+        print("Unknow command")
+
 
 
 if __name__ == '__main__':
